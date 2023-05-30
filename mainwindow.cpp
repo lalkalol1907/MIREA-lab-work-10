@@ -7,15 +7,13 @@ bool *inited = new bool[0];
 bool sorted = false;
 bool finding = false;
 
-Node* findRes = new Node(-1);
+Node *findRes = new Node(-1);
 
-template <typename T>
-bool all(T* iterable, int n) {
+template<typename T>
+bool all(T *iterable, int n) {
     for (int i = 0; i < n; i++)
         if (!iterable[i])
             return false;
-
-
     return true;
 }
 
@@ -27,9 +25,7 @@ void colorize(QTableWidgetItem *item, bool c) {
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
+        : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     ui->inputTable->setColumnCount(1);
     changeButtonsStatus(false);
@@ -49,13 +45,13 @@ double timeOf() {
             std::swap(arr[i], arr[j]);
         }
     }
-    return (double)(clock() - tStart)/CLOCKS_PER_SEC/1000000;
+    delete[] arr;
+    return (double) (clock() - tStart) / CLOCKS_PER_SEC / 1000000;
 }
 
 double timeOfIteration = timeOf();
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     delete ui;
 }
 
@@ -95,8 +91,7 @@ void MainWindow::fillTable(double *arr, int n) {
     }
 }
 
-void MainWindow::on_clear_pressed()
-{
+void MainWindow::on_clear_pressed() {
     ui->inputTable->setRowCount(0);
     ui->inputTable->setRowCount(rows);
     for (int i = 0; i < rows; i++) {
@@ -106,8 +101,7 @@ void MainWindow::on_clear_pressed()
     changeButtonsStatus(false);
 }
 
-void MainWindow::on_random_pressed()
-{
+void MainWindow::on_random_pressed() {
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_real_distribution<double> dist(-100, 100);
@@ -123,8 +117,7 @@ void MainWindow::on_random_pressed()
     clearOutput();
 }
 
-void MainWindow::on_elemFind_textEdited(const QString &arg1)
-{
+void MainWindow::on_elemFind_textEdited(const QString &arg1) {
     bool flag;
     auto a = arg1.toDouble(&flag);
     flag = flag && !qIsNaN(a) && !qIsInf(a);
@@ -132,10 +125,9 @@ void MainWindow::on_elemFind_textEdited(const QString &arg1)
 }
 
 
-void MainWindow::on_find_pressed()
-{
+void MainWindow::on_find_pressed() {
     auto elem = ui->elemFind->text().toDouble();
-    Node* result = sorted ? arrayFunctions::binaryFind(arr, rows, elem) : arrayFunctions::find(arr, rows, elem);
+    Node *result = sorted ? arrayFunctions::binaryFind(arr, rows, elem) : arrayFunctions::find(arr, rows, elem);
     ui->findMethodLabel->setText(QString("Метод поиска: ") + QString(sorted ? "Бинарный" : "Перебор"));
     ui->findMethodLabel->show();
     finding = true;
@@ -148,20 +140,21 @@ void MainWindow::on_find_pressed()
         return;
     }
 
-    Node* cur = result;
+    Node *cur = result;
     auto count = 0;
     QString strings = "";
-    while(cur) {
+    while (cur) {
         count++;
         strings += QString::number(cur->data + 1);
         if (cur->next) strings += ", ";
-        QTableWidgetItem * item = ui->inputTable->item(cur->data, 0);
+        QTableWidgetItem *item = ui->inputTable->item(cur->data, 0);
         if (item != nullptr)
             item->setBackground(Qt::blue);
         cur = cur->next;
     }
 
-    ui->indexesLabel->setText(QString("Найдено ") + QString::number(count) + QString(" элементов в строках: ") + strings);
+    ui->indexesLabel->setText(
+            QString("Найдено ") + QString::number(count) + QString(" элементов в строках: ") + strings);
     ui->indexesLabel->show();
 
     finding = false;
@@ -169,8 +162,7 @@ void MainWindow::on_find_pressed()
 }
 
 
-void MainWindow::on_size_textEdited(const QString &arg1)
-{
+void MainWindow::on_size_textEdited(const QString &arg1) {
     bool flag;
     auto a = arg1.toDouble(&flag);
     if (!flag || a != rows) {
@@ -182,8 +174,7 @@ void MainWindow::on_size_textEdited(const QString &arg1)
 }
 
 
-void MainWindow::on_sizeButton_pressed()
-{
+void MainWindow::on_sizeButton_pressed() {
     bool flag;
     auto text = ui->size->text();
     int r = text.toInt(&flag);
@@ -198,7 +189,7 @@ void MainWindow::on_sizeButton_pressed()
     ui->inputTable->setRowCount(rows);
 
     auto cur = findRes;
-    while(cur) {
+    while (cur) {
         if (cur->data == -1) break;
         colorize(ui->inputTable->item(cur->data, 0), false);
         cur = cur->next;
@@ -211,12 +202,11 @@ void MainWindow::on_sizeButton_pressed()
 }
 
 
-void MainWindow::on_inputTable_itemChanged(QTableWidgetItem *item)
-{
+void MainWindow::on_inputTable_itemChanged(QTableWidgetItem *item) {
     if (finding)
         return;
     auto cur = findRes;
-    while(cur) {
+    while (cur) {
         if (cur->data == -1) break;
         colorize(ui->inputTable->item(cur->data, 0), false);
         cur = cur->next;
@@ -251,7 +241,6 @@ void MainWindow::on_inputTable_itemChanged(QTableWidgetItem *item)
         }
 
         if (i == 0) {
-
             if (i + 1 >= rows) {
                 sorted = false;
                 return;
@@ -270,8 +259,7 @@ void MainWindow::on_inputTable_itemChanged(QTableWidgetItem *item)
 }
 
 
-void MainWindow::on_sortButton_pressed()
-{
+void MainWindow::on_sortButton_pressed() {
     if (ui->randomSort->isChecked()) {
         if (!confirmation())
             return;
@@ -287,45 +275,33 @@ void MainWindow::on_sortButton_pressed()
     }
 
     if (ui->quickSort->isChecked()) {
-        if (timeOfIteration * rows * log(rows) > 3) {
-            if (!confirmation())
-                return;
-             arrayFunctions::quickSort(arr, rows);
-        } else {
-            arrayFunctions::quickSort(arr, rows);
+        if (timeOfIteration * rows * log(rows) > 3 && !confirmation()) {
+            return;
         }
+        arrayFunctions::quickSort(arr, rows);
     }
 
 
     if (ui->gnomeSort->isChecked()) {
-        if (timeOfIteration * rows * rows > 3) {
-            if (!confirmation())
-                return;
-            arrayFunctions::gnomeSort(arr, rows);
+        if (timeOfIteration * rows * rows > 3 && !confirmation()) {
+            return;
         }
-        else {
-            arrayFunctions::gnomeSort(arr, rows);
-        }
+        arrayFunctions::gnomeSort(arr, rows);
     }
 
     if (ui->bubbleSort->isChecked()) {
-        if (timeOfIteration * rows * rows > 3) {
-            if (!confirmation())
-                return;
-            arrayFunctions::bubbleSort(arr, rows);
-        } else {
-            arrayFunctions::bubbleSort(arr, rows);
+        if (timeOfIteration * rows * rows > 3 && !confirmation()) {
+            return;
         }
+        arrayFunctions::bubbleSort(arr, rows);
+
     }
 
-    if (ui->combSort->isChecked()) {
-        if (timeOfIteration * rows * rows > 3) {
-            if (!confirmation())
-                return;
-            arrayFunctions::combSort(arr, rows);
-        } else {
-            arrayFunctions::combSort(arr, rows);
+    if (ui->combSort->isChecked() && timeOfIteration * rows * rows > 3 && !confirmation()) {
+        if (timeOfIteration * rows * rows > 3 && !confirmation()) {
+            return;
         }
+        arrayFunctions::combSort(arr, rows);
     }
     sorted = true;
     ui->deleteDup->setDisabled(!sorted);
@@ -337,32 +313,28 @@ void MainWindow::on_sortButton_pressed()
 }
 
 
-void MainWindow::on_maxButton_pressed()
-{
+void MainWindow::on_maxButton_pressed() {
     double max = arrayFunctions::max(arr, rows);
     ui->max->setNum(max);
     ui->max->show();
 }
 
 
-void MainWindow::on_minButton_pressed()
-{
+void MainWindow::on_minButton_pressed() {
     double min = arrayFunctions::min(arr, rows);
     ui->min->setNum(min);
     ui->min->show();
 }
 
 
-void MainWindow::on_avgButton_pressed()
-{
+void MainWindow::on_avgButton_pressed() {
     double avg = arrayFunctions::avg(arr, rows);
     ui->avg->setNum(avg);
     ui->avg->show();
 }
 
 
-void MainWindow::on_deleteDup_clicked()
-{
+void MainWindow::on_deleteDup_clicked() {
     int newSize;
     arr = arrayFunctions::deleteDuplicates(arr, rows, &newSize);
     inited = arrayFunctions::resize(inited, rows, newSize);
